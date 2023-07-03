@@ -1,6 +1,6 @@
 # Summarize Web Page
 
-A Node.js module that outputs a summary of bullet points for a given URL.
+A Node.js module that outputs a summary of bullet points for a given URL. Uses OpenAI's API.
 
 ## Installation  
 
