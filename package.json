@@ -8,5 +8,12 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
+    "cheerio": "^1.0.0-rc.12",
+    "isomorphic-fetch": "^3.0.0",
+    "openai": "^3.3.0",
+    "unfluff": "^3.2.0"
+  },
+  "devDependencies": {
+    "dotenv-cli": "^7.2.1"
   }
 }
