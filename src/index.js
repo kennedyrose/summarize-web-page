@@ -1,26 +1,38 @@
 import cheerio from 'cheerio'
 import unfluff from 'unfluff'
 import fetch from 'isomorphic-fetch'
-import openai from './open-ai-client'
+import get from 'lodash/get.js'
+import { Configuration, OpenAIApi } from 'openai'
 
 const defaultOptions = {
 	inputType: `url`,
 	outputType: `array`,
 	prompt: `Summarize the following content in bullet points. Each bullet point should be on its own line should not have any hyphen or number at the start.`,
 	model: `gpt-3.5-turbo`,
+	inputTokens: 3500,
 }
+
 
 export default async function summarize(input, userOptions){
 	const options = {
 		...defaultOptions,
 		...userOptions,
 	}
-	let url
+	if(!options.inputCharacters){
+		options.inputCharacters = options.inputTokens * 4
+	}
+
+	const configuration = new Configuration({
+		apiKey: process.env.OPENAI_API_KEY,
+	})
+	options.openai = new OpenAIApi(configuration)
+
 	let html = options.inputType === `html` ? input : ``
 	let text = options.inputType === `text` ? input : ``
 	let output = {
 		summary: ``,
 		tokens: 0,
+		apiCalls: 0,
 	}
 
 	// Fetch HTML
@@ -43,17 +55,14 @@ export default async function summarize(input, userOptions){
 		const res = await articleToSummary(text, options)
 		output.summary = res.summary
 		output.tokens += res.tokens
+		output.apiCalls++
+		if(options.outputType === `array`){
+			output.summary = output.summary.split(`\n`)
+		}
 	}
 
 	// Return summary
-	if(options.outputType === `array`){
-		output.summary = output.summary.split(`\n`)
-	}
-	return {
-		summary: finalOutput,
-		meta,
-	}
-
+	return output
 }
 
 
@@ -67,7 +76,7 @@ async function articleToSummary(article, options){
 	const chunks = []
 	let chunk = ``
 	for(let line of lines){
-		if(chunk.length + line.length > inputCharacters){
+		if(chunk.length + line.length > options.inputCharacters){
 			chunks.push(chunk)
 			chunk = ``
 		}
@@ -94,7 +103,7 @@ async function articleToSummary(article, options){
 }
 
 async function summarizeText(article, options){
-	const response = await openai.createChatCompletion({
+	const response = await options.openai.createChatCompletion({
 		model: options.model,
 		messages: [
 			{role: `system`, content: options.prompt},
@@ -110,7 +119,7 @@ async function summarizeText(article, options){
 		if(line.startsWith(`- `)){
 			line = line.slice(2)
 		}
-		return `- ${line.trim()}`
+		return line.trim()
 	})
 	summary = summary.join(`\n`)
 	return {

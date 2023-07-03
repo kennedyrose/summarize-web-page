@@ -5,11 +5,13 @@
   "type": "module",
   "license": "UNLICENSED",
   "scripts": {
+    "dev": "dotenv -e .env -- node sandbox.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
     "cheerio": "^1.0.0-rc.12",
     "isomorphic-fetch": "^3.0.0",
+    "lodash": "^4.17.21",
     "openai": "^3.3.0",
     "unfluff": "^3.2.0"
   },
