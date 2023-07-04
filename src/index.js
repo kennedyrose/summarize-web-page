@@ -23,7 +23,7 @@ export default async function summarize(input, userOptions){
 	}
 
 	const configuration = new Configuration({
-		apiKey: process.env.OPENAI_API_KEY,
+		apiKey: options.apiKey,
 	})
 	options.openai = new OpenAIApi(configuration)
 
